@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRUD de Productos</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Gestión de Productos</h1>
+
+    <!-- Formulario para crear un producto -->
+    <section class="card">
+      <h2>Crear nuevo producto</h2>
+      <form id="productForm">
+        <label for="name">Nombre:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="price">Precio:</label>
+        <input type="number" id="price" name="price" required>
+
+        <label for="description">Descripción:</label>
+        <textarea id="description" name="description" rows="4" required></textarea>
+
+        <button type="submit" class="btn">Crear Producto</button>
+      </form>
+    </section>
+
+    <hr>
+
+    <!-- Tabla para mostrar los productos -->
+    <section class="card">
+      <h2>Lista de productos</h2>
+      <button id="loadProductsBtn" class="btn secondary">Cargar productos</button>
+      <table id="productsTable">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Precio</th>
+            <th>Descripción</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </div>
+
+  <script>
+    // Enviar una solicitud POST para crear un producto
+    document.getElementById('productForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+      const name = document.getElementById('name').value;
+      const price = document.getElementById('price').value;
+      const description = document.getElementById('description').value;
+
+      const productData = {
+        nombre: name,
+        precio: price,
+        descripcion: description
+      };
+
+      fetch('/productos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(productData)
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert('Producto creado con éxito');
+        document.getElementById('productForm').reset(); // Limpiar el formulario
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Ocurrió un error al crear el producto');
+      });
+    });
+
+    // Enviar una solicitud GET para obtener la lista de productos
+    document.getElementById('loadProductsBtn').addEventListener('click', function () {
+      fetch('/productos')
+        .then(response => response.json())
+        .then(data => {
+          const tableBody = document.querySelector('#productsTable tbody');
+          tableBody.innerHTML = ''; // Limpiar la tabla
+
+          data.forEach(product => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${product.nombre}</td>
+              <td>${product.precio}</td>
+              <td>${product.descripcion}</td>
+            `;
+            tableBody.appendChild(row);
+          });
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Ocurrió un error al cargar los productos');
+        });
+    });
+  </script>
+</body>
+</html>
